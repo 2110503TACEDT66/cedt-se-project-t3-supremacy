@@ -7,6 +7,7 @@ import {
   ChatBubbleLeftIcon,
   ClipboardIcon,
 } from "@heroicons/react/24/outline";
+import { Searchbar } from "~/components/Job/filter";
 
 export default function Home() {
   const { data, isLoading } = api.company.getAllCompaniesData.useQuery(); // Assuming isLoading is available
@@ -93,3 +94,71 @@ const features = [
     icon: ClipboardIcon,
   },
 ];
+
+export default function Home() {
+  const { data, isLoading } = api.company.getAllCompaniesData.useQuery();
+  const [filterableData, setFilterableData] = useState<JobData[]>(data ?? []);
+
+  const SetNewFilteredData = (newData: JobData[]) =>
+    setFilterableData([...newData]);
+
+  return (
+    <Page>
+      <div className="mx-5 max-w-screen-xl text-2xl 2xl:mx-auto">
+        <h1 className="my-5 pt-5 font-semibold">Company</h1>
+        <Searchbar
+          className="mb-4"
+          data={data ?? []}
+          setFilteredData={SetNewFilteredData}
+        />
+        <ul
+          role="list"
+          className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {!isLoading
+            ? filterableData.map((company) => (
+                <CompanyCard
+                  key={company.id}
+                  {...company}
+                  description={
+                    company.description ?? "No description available"
+                  }
+                />
+              ))
+            : Array.from({ length: 6 }).map((_, index) => (
+                <CompanyCardSkeleton key={index} />
+              ))}
+        </ul>
+        <div className="mt-20 rounded-xl bg-gray-50 p-10">
+          <h2 className="text-2xl font-semibold tracking-tight text-gray-900">
+            Unlock Your Career Potential
+          </h2>
+          <p className="mt-6 text-lg leading-8 text-gray-600">
+            Join us at the leading job fair event to connect, discover, and
+            secure your next career opportunity. Whether you&apos;re looking for
+            your first job, a career change, or the chance to network with top
+            companies, we have something for everyone.
+          </p>
+          <dl className="mt-5 grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
+            {features.map((feature) => (
+              <div key={feature.name} className="flex flex-col">
+                <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600">
+                  <feature.icon
+                    className="h-6 w-6 text-white"
+                    aria-hidden="true"
+                  />
+                </div>
+                <dt className="text-base font-semibold leading-7 text-gray-900">
+                  {feature.name}
+                </dt>
+                <dd className="mt-1 flex flex-auto flex-col text-base leading-7 text-gray-600">
+                  <p className="flex-auto">{feature.description}</p>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </div>
+    </Page>
+  );
+}
